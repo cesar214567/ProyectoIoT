@@ -2,7 +2,7 @@
 #include <PubSubClient.h>// WiFi
 const int Trigger = 12;// connecting to port 12, in board is D6
 const int Echo = 14;  // connecting to port 14, in board is D5
-
+const int LED = 16; //connecting to port 16, in board is D0
 const char *ssid = "Galaxy A121A09"; // Enter your WiFi name
 const char *password = "yynm5492"; // Enter WiFi password// MQTT Broker
 const char *mqtt_broker = "192.168.148.238"; // Enter your WiFi or Ethernet IP
@@ -25,7 +25,8 @@ void setup() {
   // Set software serial baud to 115200;
   pinMode(Trigger, OUTPUT); // Sets the trigPin as an Output
   pinMode(Echo, INPUT); // Sets the echoPin as an Input
-  
+  pinMode(LED_BUILTIN, OUTPUT);
+
   Serial.begin(115200);
   
   // connecting to a WiFi network
@@ -70,7 +71,7 @@ void callback(char *topic, byte *payload, unsigned int length) {
 }
 
 bool motionDetected(){
-  return abs(distanceCm - prevDistance) > distanceThreshold;
+  return distanceCm  < distanceThreshold;
 }
 
 bool timeThresholdPassed(){
@@ -101,9 +102,13 @@ void loop() {
       if(timeThresholdPassed()){
         //alarma
         Serial.println("jaja se mamo");
+        digitalWrite(LED, HIGH);   // turn the LED on (HIGH is the voltage level)
+
       }
+    }else{
+      thiefDetected = false;  
     }
-    thiefDetected = false;
+    
 
     // Prints the distance on the Serial Monitor
     //client.publish(topic,"Duration (?): ");
@@ -114,5 +119,7 @@ void loop() {
     Serial.println(distanceCm);
     prevDistance = distanceCm;
     delay(3000);
+    
+    digitalWrite(LED, LOW);   // turn the LED on (HIGH is the voltage level)
 
 }
