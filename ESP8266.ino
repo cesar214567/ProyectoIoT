@@ -8,8 +8,8 @@ const char *password = "yynm5492"; // Enter WiFi password// MQTT Broker
 const char *mqtt_broker = "192.168.148.238"; // Enter your WiFi or Ethernet IP
 const char *topic = "test/topic";   //Enter topic 
 const int mqtt_port = 10000;      //Enter MQTT port
-const double distanceThreshold = 50;
-const double timeThreshold = 15000; //milliseconds
+double distanceThreshold = 50;
+double timeThreshold = 15000; //milliseconds
 bool thiefDetected = false;
 long int lastRecord = 0;
 WiFiClient espClient;
@@ -20,6 +20,8 @@ PubSubClient client(espClient);
 double duration;
 double distanceCm;
 double prevDistance;
+String client_id = "esp8266-client-";
+
 char buff[10];
 void setup() {
   // Set software serial baud to 115200;
@@ -40,9 +42,8 @@ void setup() {
   //connecting to a mqtt broker
   client.setServer(mqtt_broker, mqtt_port);
   client.setCallback(callback);
+  client_id += String(WiFi.macAddress());
   while (!client.connected()) {
-    String client_id = "esp8266-client-";
-    client_id += String(WiFi.macAddress());
     Serial.printf("The client %s connects to mosquitto mqttbroker\n", client_id.c_str());
     if (client.connect(client_id.c_str())) {
       Serial.println("Public emqx mqtt broker connected");
@@ -60,14 +61,44 @@ void setup() {
 
 //Setting callback when someone publish anything to the topic
 void callback(char *topic, byte *payload, unsigned int length) {
-  Serial.print("Message arrived in topic: ");
-  Serial.println(topic);
-  Serial.print("Message:");
-  for (int i = 0; i < length; i++) {
-    Serial.print((char) payload[i]);
+  
+  if (length >= client_id.length()){
+    int length_obtained = 0;
+    char *token = strtok((char*)payload, "|");
+    double *pointer = NULL;
+     /* walk through other tokens */
+     if( strcmp(client_id.c_str(),token)==0){
+      length_obtained += String(token).length();
+       while( length_obtained < length ) {
+          token = strtok(NULL, "|");
+          length_obtained += String(token).length();
+          if(strcmp(token,"distanceThreshold")==0){
+            pointer = &distanceThreshold;
+            Serial.println("distanceThreshold: ");
+          }else if (strcmp(token,"timeThreshold")==0){ 
+            pointer = &timeThreshold;
+            Serial.println("timeThreshold: ");
+          }else{
+            *pointer = String(token).toFloat();
+            Serial.println(*pointer);
+          }
+       } 
+     }else{
+      return;
+     }
+     
+    
+    //if (strcmp(client_id.c_str(),id)==0){
+      //Serial.print("es el mismo id");
+      
+    //}
   }
-  Serial.println();
-  Serial.println(" - - - - - - - - - - - -");
+  //Serial.print("Message arrived in topic: ");
+  //Serial.println(topic);
+  //Serial.print("Message:");
+  //Serial.print(payload_chars);
+  //Serial.println();
+  //Serial.println(" - - - - - - - - - - - -");
 }
 
 bool motionDetected(){
