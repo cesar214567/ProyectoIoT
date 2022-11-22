@@ -1,2 +1,3 @@
 sendgrid.env
-sendgrid.env
+/web/venv
+/web/__pycache__/
