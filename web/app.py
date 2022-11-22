@@ -5,29 +5,38 @@ import re
 
 app = Flask(__name__)
 
-#@app.route('/', defaults={'path': ''})
-#@app.route('/<path:path>')
-#def catch_all(path):
-#    return 'You want path: %s' % path
-
-#@app.route("/")
-#def hello_world():
-#    return render_template('index.html')
-
 def validate_strings(tiempo,distancia,topic,email):
-    #re.search('\d', tiempo)
-    time_regex = r"^\S+@\S+\.\S+$"
+    
+    # Verify time string
+    time_regex = r"^[0-9]+$"
     if not re.fullmatch(time_regex, tiempo):
         return False
+    elif 5 > int(tiempo) > 200: 
+        return False
 
+    # Verify email string
     email_regex = r"^\S+@\S+\.\S+$"
     if not re.fullmatch(email_regex, email):
         return False
 
-    
+    # Verify distance String 
+    distance_regex = r"^[0-9]+$"
+    if not re.fullmatch(distance_regex, distancia):
+        return False
+    elif 5 > int(distancia) > 200: 
+        return False
+
+    topic_regex = r"^\w+/*\w+$"
+    if not re.fullmatch(topic_regex, topic) or len(topic) > 30:
+        return False
+    return True 
+
+@app.route('/')
+def default():
+    return render_template('index.html')
 
 @app.route('/index')
-def hello(name=None):
+def index(name=None):
     return render_template('index.html', name=name)
 
 @app.route('/set_parameters')
@@ -40,4 +49,8 @@ def set_parameters():
     print(distancia)
     print(topic)
     print(email)
-    return "<p> Suscessful </p>"
+
+
+    if validate_strings(tiempo,distancia,topic,email):
+        return "<p> Successful </p>"
+    return "<p> Not valid parameters </p>"
