@@ -54,3 +54,6 @@ def set_parameters():
     if validate_strings(tiempo,distancia,topic,email):
         return "<p> Successful </p>"
     return "<p> Not valid parameters </p>"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080, threaded=True)
