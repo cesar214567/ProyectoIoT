@@ -1,8 +1,15 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>// WiFi
+#include <ezButton.h>
+
 const int Trigger = 12;// connecting to port 12, in board is D6
 const int Echo = 14;  // connecting to port 14, in board is D5
 const int LED = 16; //connecting to port 16, in board is D0
+const int Button = 5; //connecting to port 5, in board is D1, the other one goes in ground 
+ezButton toggleSwitch(Button);
+
+
+bool button_switch = false;
 const char *ssid = "Galaxy A121A09"; // Enter your WiFi name
 const char *password = "yynm5492"; // Enter WiFi password// MQTT Broker
 const char *mqtt_broker = "192.168.148.238"; // Enter your WiFi or Ethernet IP
@@ -12,6 +19,8 @@ double distanceThreshold = 50;
 double timeThreshold = 15000; //milliseconds
 bool thiefDetected = false;
 long int lastRecord = 0;
+bool alarm_sent = false;
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -55,7 +64,8 @@ void setup() {
   }
   prevDistance = 0.0;
   // publish and subscribe
-  client.publish(topic, "Hello From ESP8266!");
+  String connect_message = "connect " + client_id;
+  client.publish(topic, connect_message.c_str());
   client.subscribe(topic);
 }
 
@@ -86,12 +96,7 @@ void callback(char *topic, byte *payload, unsigned int length) {
      }else{
       return;
      }
-     
-    
-    //if (strcmp(client_id.c_str(),id)==0){
-      //Serial.print("es el mismo id");
-      
-    //}
+
   }
   //Serial.print("Message arrived in topic: ");
   //Serial.println(topic);
@@ -111,7 +116,16 @@ bool timeThresholdPassed(){
 
 
 void loop() {
-  client.loop();
+    toggleSwitch.loop();
+    client.loop();
+    if (toggleSwitch.isReleased()){
+      Serial.println("button_pressed");
+      button_switch = !button_switch;
+    }
+    if (button_switch){
+      delay(3000);
+      return;
+    }
     digitalWrite(Trigger, LOW);
     delayMicroseconds(4);
     // Sets the trigPin on HIGH state for 10 micro seconds
@@ -130,14 +144,18 @@ void loop() {
         lastRecord = millis();
       }
       thiefDetected = true;
-      if(timeThresholdPassed()){
+      if(timeThresholdPassed() && !alarm_sent){
         //alarma
-        Serial.println("jaja se mamo");
+        Serial.println("alarma");
+        client.publish(topic,"alarma");
+        alarm_sent = true;
+
         digitalWrite(LED, HIGH);   // turn the LED on (HIGH is the voltage level)
 
       }
     }else{
       thiefDetected = false;  
+      alarm_sent = false;
     }
     
 
