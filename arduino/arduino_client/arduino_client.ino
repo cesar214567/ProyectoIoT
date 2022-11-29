@@ -98,12 +98,6 @@ void callback(char *topic, byte *payload, unsigned int length) {
      }
 
   }
-  //Serial.print("Message arrived in topic: ");
-  //Serial.println(topic);
-  //Serial.print("Message:");
-  //Serial.print(payload_chars);
-  //Serial.println();
-  //Serial.println(" - - - - - - - - - - - -");
 }
 
 bool motionDetected(){
@@ -158,14 +152,11 @@ void loop() {
       alarm_sent = false;
     }
     
+    client.publish(topic,String(distanceCm,4).c_str());
 
     // Prints the distance on the Serial Monitor
-    //client.publish(topic,"Duration (?): ");
-    //client.publish(topic,String(duration).c_str());
-    
-    //client.publish(topic,"Distance (cm): ");
-    client.publish(topic,String(distanceCm,4).c_str());
     Serial.println(distanceCm);
+    
     prevDistance = distanceCm;
     delay(3000);
     
