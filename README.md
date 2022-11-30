@@ -8,9 +8,9 @@ chmod +x broker_mqtt/run.sh <br>
 
 ## Before running app.py
 
-echo "export SENDGRID\_API\_KEY='SG.XXX....XXXX'" > sendgrid.env <br> 
-echo "sendgrid.env" >> .gitignore (SKIP THIS) <br> 
-source ./sendgrid.env
+echo "export SENDGRID\_API\_KEY='SG.XXX....XXXX'" > env.env <br> 
+echo "env.env" >> .gitignore (SKIP THIS) <br> 
+source ./env.env
 
 ## Execute Arduino
 
