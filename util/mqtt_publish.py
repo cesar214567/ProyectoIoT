@@ -3,7 +3,7 @@
 import random
 from paho.mqtt import client as mqtt_client
 
-broker = ''
+broker = "192.168.1.39"
 port = 10000
 topic = "test/topic"
 # generate client ID with pub prefix randomly
@@ -26,20 +26,24 @@ def connect_mqtt() -> mqtt_client:
     return client
 
 
-def subscribe(client: mqtt_client):
-    def on_message(client, userdata, msg):
-        print(msg.payload.decode())
-        #print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
-
-
-    client.subscribe(topic)
-    client.on_message = on_message
-
+def publish(client):
+    while True:
+        msg = input("Insertar mensaje a mandar: ")
+        result = client.publish(topic, msg)
+        # result: [0, 1]
+        status = result[0]
+        if status == 0:
+            print(f"Send `{msg}` to topic `{topic}`")
+        else:
+            print(f"Failed to send message to topic {topic}")
+            
+        op = int(input("Continuar[1], Salir[0] >> "))
+        if(op == 0): break
 
 def run():
     client = connect_mqtt()
-    subscribe(client)
-    client.loop_forever()
+    client.loop_start()
+    publish(client)
 
 
 if __name__ == '__main__':
