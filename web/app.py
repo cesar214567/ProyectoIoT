@@ -75,9 +75,9 @@ def create_file():
 
 
 def publish(devices,variable,value):
-    global client
+    global mqtt_client
     for device in devices:
-        client.publish(topic,f'{device}|{variable}|{value}')
+        mqtt_client.publish(topic,f'{device}|{variable}|{value}')
         
 @app.route('/')
 def default():

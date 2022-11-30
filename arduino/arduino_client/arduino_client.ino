@@ -10,9 +10,9 @@ ezButton toggleSwitch(Button);
 
 
 bool button_switch = false;
-const char *ssid = "Galaxy A121A09"; // Enter your WiFi name
-const char *password = "yynm5492"; // Enter WiFi password// MQTT Broker
-const char *mqtt_broker = "192.168.148.238"; // Enter your WiFi or Ethernet IP
+const char *ssid = "JohanTv"; // Enter your WiFi name
+const char *password = "123456789"; // Enter WiFi password// MQTT Broker
+const char *mqtt_broker = "192.168.26.244"; // Enter your WiFi or Ethernet IP
 const char *topic = "test/topic";   //Enter topic 
 const int mqtt_port = 10000;      //Enter MQTT port
 double distanceThreshold = 50;
